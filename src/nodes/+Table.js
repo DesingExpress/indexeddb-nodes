@@ -244,3 +244,32 @@ export class limit extends Pure {
     this.setOutputData(1, query.limit(count));
   }
 }
+
+export class update extends Pure {
+  static path = "Database/Query";
+  static title = "Update";
+  static description = "Create or Get Table";
+
+  constructor() {
+    super();
+
+    this.properties = { count: "" };
+
+    this.addInput("table", "dexie::table");
+    this.addInput("key", "");
+    this.addInput("changes", "");
+  }
+
+  async onExecute() {
+    const table = this.getInputData(1);
+    const key = this.getInputData(2);
+    const changes = this.getInputData(3);
+    const changesEntries = Object.entries(changes);
+    changesEntries.forEach((e, i) => {
+      if (e[1].isFields && typeof e[1].call === "function") {
+        changes[e[0]] = e[1].call();
+      }
+    });
+    await table.update(key, changes);
+  }
+}
